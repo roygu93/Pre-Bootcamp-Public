@@ -1,0 +1,345 @@
+<html>
+
+<head>
+    <title>NinjaMan</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .wall {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+        }
+
+        .blank {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+        }
+
+        .sushi {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('sushi.png');
+            background-size: contain;
+        }
+
+        .onigiri {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('onigiri.png');
+            background-size: contain;
+        }
+
+        #ninjaman {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('ninja.gif');
+            background-size: contain;
+            position: absolute;
+            left: 160px;
+            top: 160px;
+        }
+
+        #pinky {
+            background-image: url('pinky.gif');
+        }
+
+        #bluey {
+            background-image: url('bluey.gif');
+        }
+
+        #red {
+            background-image: url('red.gif');
+        }
+
+        .ghost{
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-size: contain;
+            position: absolute;
+        }
+    </style>
+</head> 
+<body>
+    
+    <div id='world'>
+
+    </div>
+
+    <div id="ninjaman"></div>
+    <div id="ghosts"></div>
+
+    <h2>Score: </h2><h2 id="score"></h2>
+
+    <h2>Lives: </h2><h2 id="lives"></h2>
+
+    <h2 id="pinkyPosition">Pinky Position: </h2>
+    <h2 id="blueyPosition">Bluey Position: </h2>
+    <h2 id="redPosition">Pinky Position: </h2>
+
+
+</body>
+
+<script type="text/javascript">
+    var world = [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+    ];  
+
+    var ghostWorld = [
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+    ];  
+
+    var worldDict = {
+        0: 'blank',
+        1: 'wall', 
+        2: 'sushi',
+        3: 'onigiri'
+    };
+
+    var ghosts = [
+        {name: 'pinky', left: 0, top: 0, x: 0, y: 0},
+        {name: 'red', left: 0, top: 360, x: 9, y: 0},
+        {name: 'bluey', left: 360, top: 360, x: 9, y: 9}
+    ];
+
+    var leftValue = 160, topValue = 160, x = 4, y = 4, score = 0, lives = 3;
+
+    //keep track of each characters' original positions
+    var originalPositionsLeft = [];
+    var originalPositionsTop = [];
+
+    function drawWorld() {
+        output = "";
+
+        for(var row = 0; row < world.length; row++) {
+            output += "<div class = 'row'>";
+
+            for(var x = 0; x < world[row].length; x++) {
+                output += "<div class = '" + worldDict[world[row][x]] + "'></div>"
+            }
+
+            output += "</div>";
+        }
+
+        document.getElementById('world').innerHTML = output;
+    }
+
+    function generateRandomWorld() {
+        for(var row = 0; row < world.length; row++) {
+            for(var x = 0; x < world[row].length; x++) {
+                var rand = Math.floor(Math.random() * 4); //generate random number between 0 and 3
+                world[row][x] = rand;
+            }
+        }
+
+        //log ghosts original positions
+        for(var i = 0; i < ghosts.length; i++) {
+            var ghostName = ghosts[i].name;
+            var ghostLeft = ghosts[i].left;
+            var ghostTop = ghosts[i].top;
+
+            originalPositionsLeft[ghostName] = ghostLeft;
+            originalPositionsTop[ghostName] = ghostTop;
+        }
+
+        //log player's original positions
+        originalPositionsLeft['player'] = leftValue;
+        originalPositionsTop['player'] = topValue;
+
+        drawWorld();
+    }
+
+    generateRandomWorld();
+
+    document.getElementById("score").innerHTML = score;
+    document.getElementById("lives").innerHTML = lives;
+    
+    function update(){
+        document.getElementById("ninjaman").style.left = leftValue+"px";
+        document.getElementById("ninjaman").style.top = topValue+"px";
+
+        if(world[x][y] == 2 || world[x][y] == 3) {
+            world[x][y] = 0;
+            score++;
+            document.getElementById("score").innerHTML = score;
+
+            drawWorld();
+        }
+
+        if(ghostWorld[x][y] == 1) {
+            lives--;
+            document.getElementById("lives").innerHTML = lives;
+        }
+    }
+
+    // function checkForCollision() {
+    //     var collision = false;
+
+    //     for(var i = 0; i < ghosts.length; i++) {
+    //         if(leftValue == ghosts[i].left && topValue == ghosts[i].top) {
+    //             lives--;
+    //             document.getElementById("lives").innerHTML = lives;
+    //             collision = true;
+    //         }
+    //     }
+
+    //     //reset all ghosts and player positions if collision occurred
+    //     if(collision == true) {
+            
+    //         // for(var i = 0; i < ghosts.length; i++) {
+    //         //     ghosts[i].left = originalPositionsLeft[ghosts[i]];
+    //         //     ghosts[i].top = originalPositionsTop[ghosts[i]];
+    //         // }
+
+    //         // leftValue = originalPositionsLeft['player'];
+    //         // topValue = originalPositionsTop['player'];
+    //     }
+        
+    //     update();
+    // }
+
+    function drawGhosts() {
+        var content = "";
+        for(var i = 0; i < ghosts.length; i++) {
+            content += "<div id = '" + ghosts[i].name + "' class = 'ghost' style='left:" + ghosts[i].left + "px; top:" + ghosts[i].top + "'></div>";
+        }
+
+        document.getElementById('ghosts').innerHTML = content;
+    }
+
+    function moveGhosts() {
+        for(var i = 0; i < ghosts.length; i++) {
+            ghostWorld[ghosts[i].x][ghosts[i].y] = 0;
+            var rand = Math.floor(Math.random() * 4); //generate random number between 0 and 3
+
+            if(rand == 0) { //LEFT
+                //if ghost is already at left edge, go right instead
+                if(ghosts[i].left > 0) {
+                    ghosts[i].left = ghosts[i].left - 40;
+                    ghosts[i].y = ghosts[i].y - 1;
+                } else {
+                    ghosts[i].left = ghosts[i].left + 40;
+                    ghosts[i].y = ghosts[i].y + 1;
+                }
+            }
+            else if(rand == 1) { //UP
+                //if ghost is already at top edge, go down instead
+                if(ghosts[i].top > 0) {
+                    ghosts[i].top = ghosts[i].top - 40;
+                    ghosts[i].x = ghosts[i].x - 1;
+                } else {
+                    ghosts[i].top = ghosts[i].top + 40;
+                    ghosts[i].x = ghosts[i].x + 1;
+                }
+            }
+            else if(rand == 2) { //RIGHT
+                //if ghost is already at right edge, go left instead
+                if(ghosts[i].left < 360) {
+                    ghosts[i].left = ghosts[i].left + 40;
+                    ghosts[i].y = ghosts[i].y + 1;
+                } else {
+                    ghosts[i].left = ghosts[i].left - 40;
+                    ghosts[i].y = ghosts[i].y - 1;
+                }
+            }
+            else if(rand == 3) { //DOWN
+                //if ghost is already at bottom edge, go up instead
+                if(ghosts[i].top < 360) {
+                    ghosts[i].top = ghosts[i].top + 40;
+                    ghosts[i].x = ghosts[i].x + 1;
+                } else {
+                    ghosts[i].top = ghosts[i].top - 40;
+                    ghosts[i].x = ghosts[i].x - 1;
+                }
+                
+            }
+
+            ghostWorld[ghosts[i].x][ghosts[i].y] = 1;
+
+            // if(leftValue == ghosts[i].left && topValue == ghosts[i].top) {
+            //     lives--;
+            //     document.getElementById("lives").innerHTML = lives;
+            // }
+        }
+
+        update();
+        //checkForCollision();
+    }
+
+    document.onkeydown = function(e) {
+        console.log('e: ', e); 
+        console.log('e.keyCode: ', e.keyCode);
+
+        if (e.keyCode == 37 && leftValue > 0) { // LEFT
+            leftValue = leftValue - 40;
+            y--;
+        }
+        else if (e.keyCode == 38 && topValue > 0) { // UP
+            topValue = topValue - 40;
+            x--;
+        }
+        
+        else if (e.keyCode == 39 && leftValue < 360) { // RIGHT
+            leftValue = leftValue + 40;    
+            y++;
+        }
+
+        else if (e.keyCode == 40 && topValue < 360) { // DOWN
+            topValue = topValue + 40;
+            x++;
+        }
+
+        // for(var i = 0; i < ghosts.length; i++) {
+        //     if(leftValue == ghosts[i].left && topValue == ghosts[i].top) {
+        //         lives--;
+        //         document.getElementById("lives").innerHTML = lives;
+        //     }
+        // }
+
+        update();
+        //checkForCollision();
+    }
+
+    function gameLoop() {     
+        drawGhosts();
+        moveGhosts(); 
+        setTimeout(gameLoop, 1000);
+    }
+
+    gameLoop();
+
+</script>
+
+</html>

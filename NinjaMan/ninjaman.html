@@ -1,0 +1,220 @@
+<html>
+
+<head>
+    <title>NinjaMan</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .wall {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+        }
+
+        .blank {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+        }
+
+        .sushi {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('sushi.png');
+            background-size: contain;
+        }
+
+        .onigiri {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('onigiri.png');
+            background-size: contain;
+        }
+
+        #ninjaman {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('ninja.gif');
+            background-size: contain;
+            position: absolute;
+            left: 160px;
+            top: 160px;
+        }
+
+        #pinky {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('pinky.gif');
+            background-size: contain;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+        }
+
+        #bluey {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('bluey.gif');
+            background-size: contain;
+            position: absolute;
+            left: 360px;
+            top: 360px;
+        }
+
+        #red {
+            background-color: darkblue;
+            height: 40px;
+            width: 40px;
+            display: inline-block;
+            background-image: url('red.gif');
+            background-size: contain;
+            position: absolute;
+            left: 0px;
+            top: 360px;
+        }
+    </style>
+</head> 
+<body>
+    
+    <div id='world'>
+
+    </div>
+
+    <div id="ninjaman"></div>
+
+    <div id="pinky"></div>
+    <div id="bluey"></div>
+    <div id="red"></div>
+    
+
+    <h2>Score: </h2><h2 id="score"></h2>
+</body>
+
+<script type="text/javascript">
+    var world = [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+    ];  
+
+    var worldDict = {
+        0: 'blank',
+        1: 'wall', 
+        2: 'sushi',
+        3: 'onigiri'
+    };
+
+    var ghostDict = {
+        0: 'pinky',
+        1: 'bluey',
+        2: 'red'
+    }
+
+    function drawWorld() {
+        output = "";
+
+        for(var row = 0; row < world.length; row++) {
+            output += "<div class = 'row'>";
+
+            for(var x = 0; x < world[row].length; x++) {
+                output += "<div class = '" + worldDict[world[row][x]] + "'></div>"
+            }
+
+            output += "</div>";
+        }
+
+        document.getElementById('world').innerHTML = output;
+    }
+
+    function generateRandomWorld() {
+        for(var row = 0; row < world.length; row++) {
+            for(var x = 0; x < world[row].length; x++) {
+                var rand = Math.floor(Math.random() * 4); //generate random number between 0 and 3
+                world[row][x] = rand;
+            }
+        }
+
+        drawWorld();
+    }
+
+    generateRandomWorld();
+    
+
+    var leftValue = 160, topValue = 160, x = 4, y = 4, score = 0;
+
+    var pinkyLeft = 0, pinkyTop = 0, pinkyX = 0, pinkyY = 0;
+    var blueyLeft = 0, blueyTop = 360, blueyX = 0, blueyY = 9;
+    var redLeft =  360, redTop = 360, redX = 9, redY = 9;
+
+    document.getElementById("score").innerHTML = score;
+    
+    function update(){
+        document.getElementById("ninjaman").style.left = leftValue+"px";
+        document.getElementById("ninjaman").style.top = topValue+"px";
+        if(world[y][x] == 2 || world[y][x] == 3) {
+            world[y][x] = 0;
+            score++;
+            document.getElementById("score").innerHTML = score;
+
+            drawWorld();
+        }
+    }
+
+    function moveGhosts() {
+        for(var i = 0; i < ghostDict.length; i++) {
+            var rand = Math.floor(Math.random() * 4); //generate random number between 0 and 3
+            
+        }
+    }
+
+    document.onkeydown = function(e) {
+        console.log('e: ', e); 
+        console.log('e.keyCode: ', e.keyCode);
+
+        if (e.keyCode == 37 && leftValue - 40 >= 0) { // LEFT
+            leftValue = leftValue - 40;
+            x--;
+        }
+        else if (e.keyCode == 38 && topValue - 40 >= 0) { // UP
+            topValue = topValue - 40;
+            y--;
+        }
+        
+        else if (e.keyCode == 39 && leftValue + 40 <= 500) { // RIGHT
+            leftValue = leftValue + 40;    
+            x++;
+        }
+
+        else if (e.keyCode == 40 && topValue + 40 <= 500) { // DOWN
+            topValue = topValue + 40;
+            y++;
+        }
+        
+        update();
+    }
+
+</script>
+
+</html>
